@@ -4,7 +4,7 @@ FROM ${BUILD_FROM}
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Install Node.js and dependencies (Alpine Linux uses apk)
+# Install Node.js and dependencies
 RUN apk add --no-cache \
     nodejs \
     npm \
@@ -15,55 +15,31 @@ RUN apk add --no-cache \
     make \
     g++
 
-# Verify Node.js installation
+# Verify versions
 RUN node --version && npm --version
 
-# Clone Open Dynamic Export
+# Clone repository
 WORKDIR /app
-RUN git clone --depth 1 https://github.com/longzheng/open-dynamic-export.git . && \
-    echo "Repository cloned. Contents:" && \
-    ls -la
+RUN git clone --depth 1 https://github.com/longzheng/open-dynamic-export.git .
 
-# Install ALL dependencies (including dev dependencies for building)
-RUN npm ci && \
-    echo "Dependencies installed. Checking for TypeScript:" && \
-    npx tsc --version || echo "TypeScript not found"
+# Install dependencies and build
+RUN npm ci && npm run build
 
-# Build the project
-RUN npm run build && \
-    echo "Build command completed. Checking output:" && \
-    ls -la && \
-    if [ -d "dist" ]; then \
-        echo "dist folder exists:" && \
-        ls -la dist/ && \
-        if [ -d "dist/src" ]; then \
-            echo "dist/src exists:" && \
-            ls -la dist/src/ && \
-            if [ -f "dist/src/index.js" ]; then \
-                echo "SUCCESS: Entry point found at dist/src/index.js"; \
-            else \
-                echo "ERROR: dist/src/index.js not found" && exit 1; \
-            fi; \
-        else \
-            echo "ERROR: dist/src folder not found" && exit 1; \
-        fi; \
-    else \
-        echo "ERROR: dist folder not created" && exit 1; \
-    fi
+# Verify build output
+RUN echo "=== Build complete. Checking structure ===" && \
+    ls -la dist/src/ && \
+    echo "=== Looking for entry points ===" && \
+    find dist -name "*.js" -path "*/src/*" | head -10
 
-# Create .env file for ODE
+# Create .env file
 RUN echo "SERVER_PORT=3000" > /app/.env && \
-    echo "SERVER_HOST=0.0.0.0" >> /app/.env && \
-    cat /app/.env
+    echo "SERVER_HOST=0.0.0.0" >> /app/.env
 
 # Copy run script
 COPY run.sh /
 RUN chmod a+x /run.sh
 
-# Expose port
 EXPOSE 3000
-
 WORKDIR /app
 
-# Run
 CMD ["/run.sh"]
