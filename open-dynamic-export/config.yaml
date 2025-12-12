@@ -1,11 +1,13 @@
 name: "Open Dynamic Export"
-version: "1.0.3"
+version: "1.0.0"
 slug: "open-dynamic-export"
 description: "Dynamic solar export management with CSIP-AUS support"
 url: "https://github.com/longzheng/open-dynamic-export"
 arch:
-  - amd64
   - aarch64
+  - amd64
+  - armhf
+  - armv7
 init: false
 startup: application
 boot: auto
@@ -51,4 +53,8 @@ options:
   log_level: info
 schema:
   config_file: str
-  log_level: list(trace|debug|info|warning|error)?
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+map:
+  - addon_config:rw
+environment:
+  CONFIG_PATH: "/data/config.json"
