@@ -27,7 +27,13 @@ RUN npm ci && npm run build
 
 # Create .env file
 RUN echo "SERVER_PORT=3000" > /app/.env && \
-    echo "SERVER_HOST=0.0.0.0" >> /app/.env
+    echo "SERVER_HOST=0.0.0.0" >> /app/.env && \
+    echo "TZ=UTC" >> /app/.env && \
+    echo "CONFIG_DIR=/data" >> /app/.env && \
+    echo "SEP2_CERT_FILE=/app/config/sep2-cert.pem" >> /app/.env && \
+    echo "SEP2_KEY_FILE=/app/config/sep2-key.pem" >> /app/.env && \
+    echo "SEP2_PEN=12345" >> /app/.env && \
+    cat /app/.env
 
 # Copy run script
 COPY run.sh /
