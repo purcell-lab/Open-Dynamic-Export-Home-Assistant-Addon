@@ -13,7 +13,6 @@ RUN npm install --production
 
 # Copy application
 COPY server.js ./
-COPY public/ ./public/
 
 # Copy run script
 COPY run.sh /
